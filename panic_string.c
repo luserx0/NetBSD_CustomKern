@@ -59,13 +59,13 @@
 dev_type_open(panic_string_open);
 dev_type_close(panic_string_close);
 dev_type_read(panic_string_read);
-
+dev_type_write(panic_string_write);
 
 static struct cdevsw panic_string_cdevsw = { //devsw stands for "device switch" and the c holds it all together as "character device switch"
     .d_open = panic_string_open,
     .d_close = panic_string_close,
     .d_read = panic_string_read,
-    .d_write = nowrite,
+    .d_write = panic_string_write,
     .d_ioctl = noioctl,
     .d_stop = nostop,
     .d_tty = notty,
@@ -94,16 +94,26 @@ panic_string_close(dev_t self __unused, int flag __unused, int mod __unused, str
 }
 
 int
-panic_string_read(dev_t self __unused, struct uio *uio, int flag __unused, int mod __unused, struct lwp *l __unused)
+panic_string_read(dev_t self __unused, struct uio *uio, int flag __unused)
 {
     if (sc.buf == NULL || uio->uio_resid < sc.buf_len)
         return EINVAL;
 
     uiomove(sc.buf, sc.buf_len, uio);
-    panic("panic string: %s\n", sc.buf);
+    //panic("panic string: %s\n", sc.buf);
+    printf("panic string: %s\n", sc.buf);
+    return 0;
 }
-
-
+int
+panic_string_write(dev_t self __unused, struct uio *uio, int flag __unused)
+{
+    if(sc.buf)
+        kmem_free(sc.buf, sc.buf_len);
+    sc.buf_len = uio->uio_iov->iov_len;
+    sc.buf = (char *)kmem_alloc(sc.buf_len, KM_SLEEP);
+    uiomove(sc.buf, sc.buf_len, uio);
+    return 0;
+}
 // BASE MODULE STRUCTURE
 // MODULE(class, name, required), defines module's metadata
 MODULE(MODULE_CLASS_MISC, panic_string, NULL);
@@ -114,11 +124,11 @@ static int
 panic_string_modcmd(modcmd_t cmd, void *arg __unused)
 {
     /* TODO: Add description */
-    int cmajor = 420, bmajor = -1;
+    int cmajor = 210, bmajor = -1;
 
     switch (cmd) {
     case MODULE_CMD_INIT:
-        if (devsw_attach("panic", NULL, &bmajor, &panic_cdevsw,
+        if (devsw_attach("panic", NULL, &bmajor, &panic_string_cdevsw,
                          &cmajor))
             return ENXIO;
         return 0;
@@ -130,4 +140,5 @@ panic_string_modcmd(modcmd_t cmd, void *arg __unused)
 
     default:
         return ENOTTY;
+    }
 }
