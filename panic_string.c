@@ -59,7 +59,6 @@
 dev_type_open(panic_string_open);
 dev_type_close(panic_string_close);
 dev_type_write(panic_string_write);
-dev_type_read(panic_string_read);
 
 static struct cdevsw panic_string_cdevsw = {
     .d_open = panic_string_open,
@@ -105,21 +104,8 @@ panic_string_close(dev_t self __unused, int flag __unused, int mod __unused, str
 }
 
 int
-panic_string_read(dev_t self __unused, struct uio *uio, int flag __unused)
-{
-    if (sc.buf == NULL || uio->uio_resid < sc.buf_len)
-        return EINVAL;
-
-    uiomove(sc.buf, sc.buf_len, uio);
-    //panic("panic string: %s\n", sc.buf);
-    printf("panic string: %s\n", sc.buf);
-    return 0;
-}
-int
 panic_string_write(dev_t self, struct uio *uio, int flags)
-{
-    
-    
+{     
     if(sc.buf)
         kmem_free(sc.buf, sc.buf_len);
     
@@ -127,10 +113,18 @@ panic_string_write(dev_t self, struct uio *uio, int flags)
     sc.buf = (char *)kmem_alloc(sc.buf_len, KM_SLEEP);
     uiomove(sc.buf, sc.buf_len, uio);
     
-    printf("panic string: %s\n", sc.buf);
+    /* NULL and zero input, return value might need changing*/
+    if(sc.buf == NULL || sc.buf_len == 0)
+        return 0;
+    
+    //sync();
+    //panic("panic string: %s\n", sc.buf);
+    
+    for (int i = 0; i < sc.buf_len; ++i)
+        printf("panic string: %c\n", sc.buf[i]);
+    
     return 0;
 }
-// BASE MODULE STRUCTURE
 // MODULE(class, name, required), defines module's metadata
 MODULE(MODULE_CLASS_MISC, panic_string, NULL);
 
