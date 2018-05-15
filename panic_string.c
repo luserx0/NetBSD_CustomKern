@@ -45,7 +45,7 @@
  * user input.
  *
  * To use this device you need to do:
- *      mknod /dev/panic c 420 0
+ *      mknod /dev/panic c 210 0
  *
  * TODO: Add description of what the module does
  *
@@ -99,7 +99,7 @@ panic_string_read(dev_t self __unused, struct uio *uio, int flag __unused)
     if (sc.buf == NULL || uio->uio_resid < sc.buf_len)
         return EINVAL;
 
-    uiomove(sc.buf, sc.buf_len, uio);
+    //uiomove(sc.buf, sc.buf_len, uio);
     //panic("panic string: %s\n", sc.buf);
     printf("panic string: %s\n", sc.buf);
     return 0;
@@ -112,6 +112,7 @@ panic_string_write(dev_t self __unused, struct uio *uio, int flag __unused)
     sc.buf_len = uio->uio_iov->iov_len;
     sc.buf = (char *)kmem_alloc(sc.buf_len, KM_SLEEP);
     uiomove(sc.buf, sc.buf_len, uio);
+    printf("panic string: %s\n", sc.buf);
     return 0;
 }
 // BASE MODULE STRUCTURE
@@ -128,16 +129,16 @@ panic_string_modcmd(modcmd_t cmd, void *arg __unused)
 
     switch (cmd) {
     case MODULE_CMD_INIT:
+        printf("Example module loaded.\n");
         if (devsw_attach("panic", NULL, &bmajor, &panic_string_cdevsw,
                          &cmajor))
             return ENXIO;
         return 0;
 
     case MODULE_CMD_FINI:
-
+        printf("Example module unloaded.\n");
         devsw_detach(NULL, &panic_string_cdevsw);
         return 0;
-
     default:
         return ENOTTY;
     }
