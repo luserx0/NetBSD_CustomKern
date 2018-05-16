@@ -61,7 +61,7 @@ dev_type_close(panic_string_close);
 dev_type_read(panic_string_read);
 dev_type_write(panic_string_write);
 
-static struct cdevsw panic_string_cdevsw = { //devsw stands for "device switch" and the c holds it all together as "character device switch"
+static struct cdevsw panic_string_cdevsw = {
     .d_open = panic_string_open,
     .d_close = panic_string_close,
     .d_read = panic_string_read,
@@ -99,12 +99,12 @@ panic_string_read(dev_t self __unused, struct uio *uio, int flag __unused)
     if (sc.buf == NULL || uio->uio_resid < sc.buf_len)
         return EINVAL;
 
-    //uiomove(sc.buf, sc.buf_len, uio);
+    uiomove(sc.buf, sc.buf_len, uio);
     //panic("panic string: %s\n", sc.buf);
     printf("panic string: %s\n", sc.buf);
     return 0;
 }
-int
+/*int
 panic_string_write(dev_t self __unused, struct uio *uio, int flag __unused)
 {
     if(sc.buf)
@@ -114,7 +114,7 @@ panic_string_write(dev_t self __unused, struct uio *uio, int flag __unused)
     uiomove(sc.buf, sc.buf_len, uio);
     printf("panic string: %s\n", sc.buf);
     return 0;
-}
+}*/
 // BASE MODULE STRUCTURE
 // MODULE(class, name, required), defines module's metadata
 MODULE(MODULE_CLASS_MISC, panic_string, NULL);
