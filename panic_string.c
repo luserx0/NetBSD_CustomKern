@@ -77,19 +77,25 @@ static struct cdevsw panic_string_cdevsw = {
 };
 
 static struct panic_string_softc {
-    char *buf;
-    size_t buf_len;
+    char    *buf;
+    size_t  buf_len;
+    int     refcnt;
+
 } sc;
 
 int
 panic_string_open(dev_t self __unused, int flag __unused, int mod __unused, struct lwp *l __unused)
 {
+    if (sc.refcnt > 0)
+        return EBUSY;
+    --sc.refcnt;
     return 0;
 }
 
 int
 panic_string_close(dev_t self __unused, int flag __unused, int mod __unused, struct lwp *l __unused)
 {
+    --sc.refcnt;
     return 0;
 }
 
@@ -129,14 +135,18 @@ panic_string_modcmd(modcmd_t cmd, void *arg __unused)
 
     switch (cmd) {
     case MODULE_CMD_INIT:
-        printf("Example module loaded.\n");
+        printf("Panic String module loaded.\n");
         if (devsw_attach("panic", NULL, &bmajor, &panic_string_cdevsw,
                          &cmajor))
             return ENXIO;
         return 0;
 
     case MODULE_CMD_FINI:
-        printf("Example module unloaded.\n");
+        printf("Panic String module unloaded.\n");
+
+        if (sc.refcnt > 0)
+            return EBUSY;
+
         devsw_detach(NULL, &panic_string_cdevsw);
         return 0;
     default:
