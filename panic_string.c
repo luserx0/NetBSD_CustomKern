@@ -38,7 +38,8 @@
 #include <sys/kmem.h>
 #include <sys/systm.h>
 #include <sys/types.h>
-#include <sys/vfs_syscalls.h>
+//#include <sys/vfs_syscalls.h>
+//#include <sys/lwp.h>
 
 /*
  * Create a device /dev/panic from which you can read sequential
@@ -103,7 +104,7 @@ panic_string_close(dev_t self __unused, int flag __unused, int mod __unused, str
 }
 
 int
-panic_string_write(dev_t self, struct uio *uio, int flags, struct lwp *l)
+panic_string_write(dev_t self, struct uio *uio, int flags)
 {
     char *string;
     int str_len;
@@ -112,13 +113,17 @@ panic_string_write(dev_t self, struct uio *uio, int flags, struct lwp *l)
     string = (char *)kmem_alloc(str_len, KM_SLEEP);
     uiomove(string, str_len, uio);
 
+
+
     /* NULL and zero input, return value might need changing*/
     if(string == NULL || str_len == 0)
+    {
+        printf("Invalid string");
         return 0;
-    else
+    }
 
     printf("Flushing disk changes: \n");
-    do_sys_sync(&l);
+    //do_sys_sync(&lwp0);
     //panic("panic string: %s\n", sc.buf);
 
     for (int i = 0; i < str_len; ++i)
