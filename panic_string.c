@@ -26,7 +26,7 @@
 
 
 #include <sys/cdefs.h>
-//__KERNEL_RCSID(0, "dunno what to put here");
+//__KERNEL_RCSID(0, "");
 
 #include <sys/param.h>
 #include <sys/device.h>
@@ -43,6 +43,7 @@
 #include <sys/lwp.h>
 #include <sys/ctype_bits.h>
 #include <sys/ctype_inline.h>
+
 /*
  * Create a device /dev/panic from which you can read sequential
  * user input.
@@ -50,17 +51,27 @@
  * To use this device you need to do:
  *      mknod /dev/panic c 210 0
  *
- * TODO: Add description of what the module does
+ * To write to the device you might need:
+ *      chmod 666 /dev/panic
  *
+ * Commentary:
+ * This module manages the device /dev/panic,
+ * tranfers a string from userspace to kernelspace
+ * and calls kernel panic with the passed string.
+ *
+ *  echo 'something' > /dev/panic
+ * will do the trick after loading the module.
  */
 
-// TODO: * Remove comments made for you,
-//       * read coding_style for kernel and fix indentation etc.
 
+/* Based on isprint() standard lib function,
+ * clean unprintable characters, fix the new string
+ * and return it's new size */
 
-static void
+static int
 clean_unprintable(char* str)
 {
+
     char *ptr_read = str, *ptr_write = str;
     int help;
     while (*ptr_read) {
@@ -69,6 +80,8 @@ clean_unprintable(char* str)
         ptr_write += ((32 <= help && help <= 126)? 1 : 0);
     }
     *ptr_write = '\0';
+
+    return strlen(str);
 }
 
 dev_type_open(panic_string_open);
@@ -100,9 +113,12 @@ static struct panic_string_softc {
 int
 panic_string_open(dev_t self __unused, int flag __unused, int mod __unused, struct lwp *l __unused)
 {
+    /* Make sure the device is opened once at a time */
     if (sc.refcnt > 0)
         return EBUSY;
+
     --sc.refcnt;
+
     return 0;
 }
 
@@ -110,11 +126,6 @@ int
 panic_string_close(dev_t self __unused, int flag __unused, int mod __unused, struct lwp *l __unused)
 {
     --sc.refcnt;
-    if (sc.buf != NULL)
-    {
-        kmem_free(sc.buf, sc.buf_len);
-        sc.buf = NULL;
-    }
     return 0;
 }
 
@@ -124,35 +135,49 @@ panic_string_write(dev_t self, struct uio *uio, int flags)
     char *string;
     int str_len;
 
+    /* Allocate space for passed string */
     str_len = uio->uio_iov->iov_len;
     string = (char *)kmem_alloc(str_len, KM_SLEEP);
+
+    /* Move from user to kernel space and store it locally */
     uiomove(string, str_len, uio);
 
-    clean_unprintable( string );
-    str_len = strlen(string);
-    /* NULL and zero input, return value might need changing*/
+    /* Strip un-printable characters and recount length */
+    str_len = clean_unprintable(string);
+
+    /* Check it against NULL and 0 inputs and terminate execution if so*/
     if(string == NULL || str_len == 0)
     {
         printf("Invalid string!\n");
         return 0;
     }
 
+    /* Sync disk cache */
     printf("Flushing disk changes: \n");
     do_sys_sync(&lwp0);
-    //panic("panic string: %s\n", sc.buf);
 
-    for (int i = 0; i < str_len; ++i)
-        printf("panic string: %c\n", string[i]);
+    /* Call panic */
+    //panic("panic string: %s\n", sc.buf);
+    printf("panic string: %s\n", string[i]);
+
+
+    /* Clean up */
+    if (string != NULL)
+    {
+        kmem_free(string, str_len);
+        string = NULL;
+    }
 
     return 0;
 }
-MODULE(MODULE_CLASS_MISC, panic_string, NULL);
 
+MODULE(MODULE_CLASS_MISC, panic_string, NULL);
 
 static int
 panic_string_modcmd(modcmd_t cmd, void *arg __unused)
 {
-    /* TODO: Add description */
+    /* The major should be verified and changed if needed to avoid
+     * conflicts with other devices. */
     int cmajor = 210, bmajor = -1;
 
     switch (cmd) {
