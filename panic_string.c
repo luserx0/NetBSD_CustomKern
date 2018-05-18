@@ -41,7 +41,6 @@
 //#include <sys/vfs_syscalls.h>
 //#include <sys/lwp.h>
 
-#include <ctype.h>
 /*
  * Create a device /dev/panic from which you can read sequential
  * user input.
@@ -55,6 +54,9 @@
 
 // TODO: * Remove comments made for you,
 //       * read coding_style for kernel and fix indentation etc.
+
+#define	isprint(c)  ((int)((_ctype_tab_ + 1)[(c)] & _CTYPE_R))
+
 static void
 clean_unprintable(char* str)
 {
