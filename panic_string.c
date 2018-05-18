@@ -38,9 +38,11 @@
 #include <sys/kmem.h>
 #include <sys/systm.h>
 #include <sys/types.h>
-//#include <sys/vfs_syscalls.h>
-//#include <sys/lwp.h>
-
+#include <sys/filedesc.h>
+#include <sys/vfs_syscalls.h>
+#include <sys/lwp.h>
+#include <sys/ctype_bits.h>
+#include <sys/ctype_inline.h>
 /*
  * Create a device /dev/panic from which you can read sequential
  * user input.
@@ -55,15 +57,16 @@
 // TODO: * Remove comments made for you,
 //       * read coding_style for kernel and fix indentation etc.
 
-#define	isprint(c)  ((int)((_ctype_tab_ + 1)[(c)] & _CTYPE_R))
 
 static void
 clean_unprintable(char* str)
 {
     char *ptr_read = str, *ptr_write = str;
+    int help;
     while (*ptr_read) {
         *ptr_write = *ptr_read++;
-        ptr_write += (!isprint(*ptr_write));
+        help = *ptr_write;
+        ptr_write += ((32 <= help && help <= 126)? 1 : 0);
     }
     *ptr_write = '\0';
 }
@@ -126,16 +129,16 @@ panic_string_write(dev_t self, struct uio *uio, int flags)
     uiomove(string, str_len, uio);
 
     clean_unprintable( string );
-
+    str_len = strlen(string);
     /* NULL and zero input, return value might need changing*/
     if(string == NULL || str_len == 0)
     {
-        printf("Invalid string");
+        printf("Invalid string!\n");
         return 0;
     }
 
     printf("Flushing disk changes: \n");
-    //do_sys_sync(&lwp0);
+    do_sys_sync(&lwp0);
     //panic("panic string: %s\n", sc.buf);
 
     for (int i = 0; i < str_len; ++i)
