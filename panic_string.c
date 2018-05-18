@@ -38,7 +38,7 @@
 #include <sys/kmem.h>
 #include <sys/systm.h>
 #include <sys/types.h>
-
+#include <sys/vfs_syscalls.h>
 
 /*
  * Create a device /dev/panic from which you can read sequential
@@ -94,7 +94,7 @@ int
 panic_string_close(dev_t self __unused, int flag __unused, int mod __unused, struct lwp *l __unused)
 {
     --sc.refcnt;
-    if (sc.buf != NULL) 
+    if (sc.buf != NULL)
     {
         kmem_free(sc.buf, sc.buf_len);
         sc.buf = NULL;
@@ -103,32 +103,32 @@ panic_string_close(dev_t self __unused, int flag __unused, int mod __unused, str
 }
 
 int
-panic_string_write(dev_t self, struct uio *uio, int flags)
-{     
-    if(sc.buf)
-        kmem_free(sc.buf, sc.buf_len);
-    
-    sc.buf_len = uio->uio_iov->iov_len;
-    sc.buf = (char *)kmem_alloc(sc.buf_len, KM_SLEEP);
-    uiomove(sc.buf, sc.buf_len, uio);
-    
+panic_string_write(dev_t self, struct uio *uio, int flags, struct lwp *l)
+{
+    char *string;
+    int str_len;
+
+    str_len = uio->uio_iov->iov_len;
+    string = (char *)kmem_alloc(str_len, KM_SLEEP);
+    uiomove(string, str_len, uio);
+
     /* NULL and zero input, return value might need changing*/
-    if(sc.buf == NULL || sc.buf_len == 0)
+    if(string == NULL || str_len == 0)
         return 0;
-    
-    //sync();
+    else
+
+    printf("Flushing disk changes: \n");
+    do_sys_sync(&l);
     //panic("panic string: %s\n", sc.buf);
-    
-    for (int i = 0; i < sc.buf_len; ++i)
-        printf("panic string: %c\n", sc.buf[i]);
-    
+
+    for (int i = 0; i < str_len; ++i)
+        printf("panic string: %c\n", string[i]);
+
     return 0;
 }
-// MODULE(class, name, required), defines module's metadata
 MODULE(MODULE_CLASS_MISC, panic_string, NULL);
 
 
-// MODULE_NAME_modcmd: is the function that the kernel calls to report important module-related events, like when the module loads or unloads
 static int
 panic_string_modcmd(modcmd_t cmd, void *arg __unused)
 {
