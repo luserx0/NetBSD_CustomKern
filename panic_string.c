@@ -41,6 +41,7 @@
 //#include <sys/vfs_syscalls.h>
 //#include <sys/lwp.h>
 
+#include <ctype.h>
 /*
  * Create a device /dev/panic from which you can read sequential
  * user input.
@@ -54,7 +55,16 @@
 
 // TODO: * Remove comments made for you,
 //       * read coding_style for kernel and fix indentation etc.
-
+static void
+clean_unprintable(char* str)
+{
+    char *ptr_read = str, *ptr_write = str;
+    while (*ptr_read) {
+        *ptr_write = *ptr_read++;
+        ptr_write += (!isprint(*ptr_write));
+    }
+    *ptr_write = '\0';
+}
 
 dev_type_open(panic_string_open);
 dev_type_close(panic_string_close);
@@ -113,7 +123,7 @@ panic_string_write(dev_t self, struct uio *uio, int flags)
     string = (char *)kmem_alloc(str_len, KM_SLEEP);
     uiomove(string, str_len, uio);
 
-
+    clean_unprintable( string );
 
     /* NULL and zero input, return value might need changing*/
     if(string == NULL || str_len == 0)
