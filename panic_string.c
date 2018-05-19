@@ -63,12 +63,24 @@
  * will do the trick after loading the module.
  */
 
+/*
+static int
+strlen_print(char* buf, unsigned len)
+{
+    int n = 0;
+    while (n < len)
+    {
+        if (!(buf[n] > 0x20 && buf[n] < 0x7f))
+            break;
+        n++;
+    }
+    return n;
+}*/
 
 /* Based on isprint() standard lib function,
  * clean unprintable characters, fix the new string
  * and return it's new size */
-
-static int
+static void
 clean_unprintable(char* str)
 {
 
@@ -80,8 +92,6 @@ clean_unprintable(char* str)
         ptr_write += ((32 <= help && help <= 126)? 1 : 0);
     }
     *ptr_write = '\0';
-
-    return strlen(str);
 }
 
 
@@ -113,7 +123,7 @@ static struct panic_string_softc {
 } sc;
 
 int
-panic_string_open(dev_t self __unused, int flag __unused, int mod __unused, struct lwp *l __unused)
+panic_string_open(dev_t self __unused, int flag __unused, int mod __unused, struct lwp *l)
 {
     /* Make sure the device is opened once at a time */
     if (sc.refcnt > 0)
@@ -145,7 +155,8 @@ panic_string_write(dev_t self, struct uio *uio, int flags)
     uiomove(string, str_len, uio);
 
     /* Strip un-printable characters and recount length */
-    str_len = clean_unprintable(string);
+    clean_unprintable(string);
+    //str_len = strlen_print(string, str_len);
 
     /* Check it against NULL and 0 inputs and terminate execution if so*/
     if(str_len == 0)
@@ -160,7 +171,7 @@ panic_string_write(dev_t self, struct uio *uio, int flags)
 
     /* Call panic */
     //panic("panic string: %s\n", sc.buf);
-    printf("panic string: %.*s\n", str_len, string);
+    printf("panic string: %s\n", string);
 
 
     /* Clean up */
