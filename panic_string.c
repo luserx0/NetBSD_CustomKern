@@ -84,6 +84,8 @@ clean_unprintable(char* str)
     return strlen(str);
 }
 
+
+
 dev_type_open(panic_string_open);
 dev_type_close(panic_string_close);
 dev_type_write(panic_string_write);
@@ -117,7 +119,7 @@ panic_string_open(dev_t self __unused, int flag __unused, int mod __unused, stru
     if (sc.refcnt > 0)
         return EBUSY;
 
-    --sc.refcnt;
+    ++sc.refcnt;
 
     return 0;
 }
@@ -146,7 +148,7 @@ panic_string_write(dev_t self, struct uio *uio, int flags)
     str_len = clean_unprintable(string);
 
     /* Check it against NULL and 0 inputs and terminate execution if so*/
-    if(string == NULL || str_len == 0)
+    if(str_len == 0)
     {
         printf("Invalid string!\n");
         return 0;
@@ -158,7 +160,7 @@ panic_string_write(dev_t self, struct uio *uio, int flags)
 
     /* Call panic */
     //panic("panic string: %s\n", sc.buf);
-    printf("panic string: %s\n", string[i]);
+    printf("panic string: %.*s\n", str_len, string);
 
 
     /* Clean up */
