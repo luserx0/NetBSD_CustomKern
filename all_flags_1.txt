@@ -1,0 +1,94 @@
+===> build.sh command:    ./build.sh -m amd64 -u -U -j4 kernel=UBSAN_ENABLED
+===> build.sh started:    Tue May 22 16:56:11 UTC 2018
+===> NetBSD version:      8.99.19
+===> MACHINE:             amd64
+===> MACHINE_ARCH:        x86_64
+===> Build platform:      NetBSD 8.99.14 amd64
+===> HOST_SH:             /bin/sh
+===> MAKECONF file:       /etc/mk.conf (File not found)
+===> TOOLDIR path:        /root/lx0_fork/obj/tooldir.NetBSD-8.99.14-amd64
+===> DESTDIR path:        /root/lx0_fork/obj/destdir.amd64
+===> RELEASEDIR path:     /root/lx0_fork/obj/releasedir
+===> Updated makewrapper: /root/lx0_fork/obj/tooldir.NetBSD-8.99.14-amd64/bin/nbmake-amd64
+===> Building kernel without building new tools
+--- obj ---
+===> Building kernel:     UBSAN_ENABLED
+===> Build directory:     /root/lx0_fork/sys/arch/amd64/compile/obj/UBSAN_ENABLED
+Build directory is /root/lx0_fork/sys/arch/amd64/compile/obj/UBSAN_ENABLED
+Don't forget to run "make depend"
+--- __always_make_kernlib ---
+--- __always_make_compatlib ---
+--- dependkernlib ---
+--- dependcompatlib ---
+--- dependkernlib ---
+depending the kern library objects
+--- dependcompatlib ---
+depending the compat library objects
+--- .gdbinit ---
+#    create  UBSAN_ENABLED/.gdbinit
+rm -f .gdbinit
+echo "source /root/lx0_fork/sys/gdbscripts/bdump" >> .gdbinit
+echo "source /root/lx0_fork/sys/gdbscripts/cpus" >> .gdbinit
+echo "source /root/lx0_fork/sys/gdbscripts/kdump" >> .gdbinit
+echo "source /root/lx0_fork/sys/gdbscripts/kernhist" >> .gdbinit
+echo "source /root/lx0_fork/sys/gdbscripts/lwps" >> .gdbinit
+echo "source /root/lx0_fork/sys/gdbscripts/module" >> .gdbinit
+echo "source /root/lx0_fork/sys/gdbscripts/msgbuf" >> .gdbinit
+echo "source /root/lx0_fork/sys/gdbscripts/pgrpdump" >> .gdbinit
+echo "source /root/lx0_fork/sys/gdbscripts/procs" >> .gdbinit
+echo "source /root/lx0_fork/sys/gdbscripts/vchain" >> .gdbinit
+echo "source /root/lx0_fork/sys/gdbscripts/vdump" >> .gdbinit
+--- __always_make_compatlib ---
+--- __always_make_kernlib ---
+--- machdep.o ---
+--- param.o ---
+--- locore.o ---
+--- /root/lx0_fork/sys/arch/amd64/compile/obj/UBSAN_ENABLED/lib/compat/libcompat.a ---
+--- machdep.o ---
+#   compile  UBSAN_ENABLED/machdep.o
+/root/lx0_fork/obj/tooldir.NetBSD-8.99.14-amd64/bin/x86_64--netbsd-gcc -mcmodel=kernel -mno-red-zone -mno-mmx -mno-sse -mno-avx -msoft-float -mindirect-branch=thunk-inline -mindirect-branch-register -ffreestanding -fno-zero-initialized-in-bss -fno-delete-null-pointer-checks -O2 -fno-omit-frame-pointer -fsanitize=alignment,bool,bounds,enum,float-cast-overflow,float-divide-by-zero,integer-divide-by-zero,nonull-attribute,null,nullability-arg,nullability-assign,nullability-return,object-size,pointer-overflow,return,returns-nonull-attribute,shift,signed-integer-overflow,unreachable,unsigned-integer-overflow,vla-bound,vptr -fstack-protector -Wstack-protector --param ssp-buffer-size=1 -fno-strict-aliasing -fno-common -std=gnu99 -Werror -Wall -Wno-main -Wno-format-zero-length -Wpointer-arith -Wmissing-prototypes -Wstrict-prototypes -Wold-style-definition -Wswitch -Wshadow -Wcast-qual -Wwrite-strings -Wno-unreachable-code -Wno-pointer-sign -Wno-attributes -Wextra -Wno-unused-parameter -Wold-style-definition -Wno-sign-compare --sysroot=/root/lx0_fork/obj/destdir.amd64 -Damd64 -Dx86_64 -I. -I/root/lx0_fork/sys/external/bsd/acpica/dist -I/root/lx0_fork/sys/../common/lib/libx86emu -I/root/lx0_fork/sys/../common/include -I/root/lx0_fork/sys/arch -I/root/lx0_fork/sys -nostdinc -DDIAGNOSTIC -DCOMPAT_44 -D_KERNEL -D_KERNEL_OPT -std=gnu99 -I/root/lx0_fork/sys/lib/libkern/../../../common/lib/libc/quad -I/root/lx0_fork/sys/lib/libkern/../../../common/lib/libc/string -I/root/lx0_fork/sys/lib/libkern/../../../common/lib/libc/arch/x86_64/string -D_FORTIFY_SOURCE=2 -I/root/lx0_fork/sys/external/bsd/ipf -I/root/lx0_fork/sys/external/isc/atheros_hal/dist -I/root/lx0_fork/sys/external/isc/atheros_hal/ic -I/root/lx0_fork/sys/external/bsd/common/include -I/root/lx0_fork/sys/external/bsd/drm2/include -I/root/lx0_fork/sys/external/bsd/common/include -I/root/lx0_fork/sys/external/bsd/drm2/include -I/root/lx0_fork/sys/external/bsd/drm2/include/drm -I/root/lx0_fork/sys/external/bsd/drm2/dist -I/root/lx0_fork/sys/external/bsd/drm2/dist/include -I/root/lx0_fork/sys/external/bsd/drm2/dist/include/drm -I/root/lx0_fork/sys/external/bsd/drm2/dist/uapi -I/root/lx0_fork/sys/external/bsd/common/include -D__KERNEL__ -DCONFIG_FB=0 -DCONFIG_BACKLIGHT_CLASS_DEVICE=0 -DCONFIG_BACKLIGHT_CLASS_DEVICE_MODULE=0 -I/root/lx0_fork/sys/../common/include -DCONFIG_AGP -I/root/lx0_fork/sys/external/bsd/drm2/dist/drm/i915 -I/root/lx0_fork/sys/external/bsd/drm2/i915drm -DCONFIG_DRM_I915_FBDEV=1 -DCONFIG_DRM_I915_PRELIMINARY_HW_SUPPORT=0 -I/root/lx0_fork/sys/external/bsd/drm2/dist/drm/radeon -I/root/lx0_fork/sys/external/bsd/drm2/include/radeon -I/root/lx0_fork/sys/external/bsd/drm2/radeon -I/root/lx0_fork/sys/external/bsd/drm2/dist/drm/nouveau -I/root/lx0_fork/sys/external/bsd/drm2/dist/drm/nouveau/core -I/root/lx0_fork/sys/external/bsd/drm2/dist/drm/nouveau/core/include -I/root/lx0_fork/sys/external/bsd/drm2/nouveau -DCONFIG_NOUVEAU_DEBUG=5 -DCONFIG_NOUVEAU_DEBUG_DEFAULT=3 -I/root/lx0_fork/sys/external/bsd/acpica/dist/include -c /root/lx0_fork/sys/arch/amd64/amd64/machdep.c -o machdep.o
+x86_64--netbsd-gcc: error: unrecognized argument to -fsanitize= option: 'nonull-attribute'
+x86_64--netbsd-gcc: error: unrecognized argument to -fsanitize= option: 'nullability-arg'
+x86_64--netbsd-gcc: error: unrecognized argument to -fsanitize= option: 'nullability-assign'
+x86_64--netbsd-gcc: error: unrecognized argument to -fsanitize= option: 'nullability-return'
+x86_64--netbsd-gcc: error: unrecognized argument to -fsanitize= option: 'pointer-overflow'
+x86_64--netbsd-gcc: error: unrecognized argument to -fsanitize= option: 'returns-nonull-attribute'
+x86_64--netbsd-gcc: error: unrecognized argument to -fsanitize= option: 'unsigned-integer-overflow'
+*** [machdep.o] Error code 1
+
+nbmake: stopped in /root/lx0_fork/sys/arch/amd64/compile/obj/UBSAN_ENABLED
+--- locore.o ---
+#   compile  UBSAN_ENABLED/locore.o
+--- /root/lx0_fork/sys/arch/amd64/compile/obj/UBSAN_ENABLED/lib/compat/libcompat.a ---
+making sure the compat library is up to date...
+--- param.o ---
+#   compile  UBSAN_ENABLED/param.o
+--- locore.o ---
+/root/lx0_fork/obj/tooldir.NetBSD-8.99.14-amd64/bin/x86_64--netbsd-gcc -D_LOCORE -Wa,--fatal-warnings --sysroot=/root/lx0_fork/obj/destdir.amd64 -Damd64 -Dx86_64 -I. -I/root/lx0_fork/sys/external/bsd/acpica/dist -I/root/lx0_fork/sys/../common/lib/libx86emu -I/root/lx0_fork/sys/../common/include -I/root/lx0_fork/sys/arch -I/root/lx0_fork/sys -nostdinc -DDIAGNOSTIC -DCOMPAT_44 -D_KERNEL -D_KERNEL_OPT -std=gnu99 -I/root/lx0_fork/sys/lib/libkern/../../../common/lib/libc/quad -I/root/lx0_fork/sys/lib/libkern/../../../common/lib/libc/string -I/root/lx0_fork/sys/lib/libkern/../../../common/lib/libc/arch/x86_64/string -D_FORTIFY_SOURCE=2 -I/root/lx0_fork/sys/external/bsd/ipf -I/root/lx0_fork/sys/external/isc/atheros_hal/dist -I/root/lx0_fork/sys/external/isc/atheros_hal/ic -I/root/lx0_fork/sys/external/bsd/common/include -I/root/lx0_fork/sys/external/bsd/drm2/include -I/root/lx0_fork/sys/external/bsd/common/include -I/root/lx0_fork/sys/external/bsd/drm2/include -I/root/lx0_fork/sys/external/bsd/drm2/include/drm -I/ro--- param.o ---
+/root/lx0_fork/obj/tooldir.NetBSD-8.99.14-amd64/bin/x86_64--netbsd-gcc -mcmodel=kernel -mno-red-zone -mno-mmx -mno-sse -mno-avx -msoft-float -mindirect-branch=thunk-inline -mindirect-branch-register -ffreestanding -fno-zero-initialized-in-bss -fno-delete-null-pointer-checks -O2 -fno-omit-frame-pointer -fsanitize=alignment,bool,bounds,enum,float-cast-overflow,float-divide-by-zero,integer-divide-by-zero,nonull-attribute,null,nullability-arg,nullability-assign,nullability-return,object-size,pointer-overflow,return,returns-nonull-attribute,shift,signed-integer-overflow,unreachable,unsigned-integer-overflow,vla-bound,vptr -fstack-protector -Wstack-protector --param ssp-buffer-size=1 -fno-strict-aliasing -fno-common -std=gnu99 -Werror -Wall -Wno-main -Wno-format-zero-length -Wpointer-arith -Wmissing-prototypes -Wstrict-prototypes -Wold-style-definition -Wswitch -Wshadow -Wcast-qual -Wwrite-strings -Wno-unreachable-code -Wno-pointer-sign -Wno-attributes -Wextra -Wno-unused-parameter -Wold-style-definition -Wno-sign---- locore.o ---
+ot/lx0_fork/sys/external/bsd/drm2/dist -I/root/lx0_fork/sys/external/bsd/drm2/dist/include -I/root/lx0_fork/sys/external/bsd/drm2/dist/include/drm -I/root/lx0_fork/sys/external/bsd/drm2/dist/uapi -I/root/lx0_fork/sys/external/bsd/common/include -D__KERNEL__ -DCONFIG_FB=0 -DCONFIG_BACKLIGHT_CLASS_DEVICE=0 -DCONFIG_BACKLIGHT_CLASS_DEVICE_MODULE=0 -I/root/lx0_fork/sys/../common/include -DCONFIG_AGP -I/root/lx0_fork/sys/external/bsd/drm2/dist/drm/i915 -I/root/lx0_fork/sys/external/bsd/drm2/i915drm -DCONFIG_DRM_I915_FBDEV=1 -DCONFIG_DRM_I915_PRELIMINARY_HW_SUPPORT=0 -I/root/lx0_fork/sys/external/bsd/drm2/dist/drm/radeon -I/root/lx0_fork/sys/external/bsd/drm2/include/radeon -I/root/lx0_fork/sys/external/bsd/drm2/radeon -I/root/lx0_fork/sys/external/bsd/drm2/dist/drm/nouveau -I/root/lx0_fork/sys/external/bsd/drm2/dist/drm/nouveau/core -I/root/lx0_fork/sys/external/bsd/drm2/dist/drm/nouveau/core/include -I/root/lx0_fork/sys/external/bsd/drm2/nouveau -DCONFIG_NOUVEAU_DEBUG=5 -DCONFIG_NOUVEAU_DEBUG_DEFAULT=3 -I/root/lx0_fork/sys/external/bsd/acpica/dist/include -c /root/lx0_fork/sys/arch/amd64/amd64/locore.S -o locore.o
+--- param.o ---
+compare --sysroot=/root/lx0_fork/obj/destdir.amd64 -Damd64 -Dx86_64 -I. -I/root/lx0_fork/sys/external/bsd/acpica/dist -I/root/lx0_fork/sys/../common/lib/libx86emu -I/root/lx0_fork/sys/../common/include -I/root/lx0_fork/sys/arch -I/root/lx0_fork/sys -nostdinc -DDIAGNOSTIC -DCOMPAT_44 -D_KERNEL -D_KERNEL_OPT -std=gnu99 -I/root/lx0_fork/sys/lib/libkern/../../../common/lib/libc/quad -I/root/lx0_fork/sys/lib/libkern/../../../common/lib/libc/string -I/root/lx0_fork/sys/lib/libkern/../../../common/lib/libc/arch/x86_64/string -D_FORTIFY_SOURCE=2 -I/root/lx0_fork/sys/external/bsd/ipf -I/root/lx0_fork/sys/external/isc/atheros_hal/dist -I/root/lx0_fork/sys/external/isc/atheros_hal/ic -I/root/lx0_fork/sys/external/bsd/common/include -I/root/lx0_fork/sys/external/bsd/drm2/include -I/root/lx0_fork/sys/external/bsd/common/include -I/root/lx0_fork/sys/external/bsd/drm2/include -I/root/lx0_fork/sys/external/bsd/drm2/include/drm -I/root/lx0_fork/sys/external/bsd/drm2/dist -I/root/lx0_fork/sys/external/bsd/drm2/dist/include -I/--- /root/lx0_fork/sys/arch/amd64/compile/obj/UBSAN_ENABLED/lib/compat/libcompat.a ---
+A failure has been detected in another branch of the parallel make
+--- param.o ---
+root/lx0_fork/sys/external/bsd/drm2/dist/include/drm -I/root/lx0_fork/sys/external/bsd/drm2/dist/uapi -I/root/lx0_fork/sys/external/bsd/common/include -D__KERNEL__ -DCONFIG_FB=0 -DCONFIG_BACKLIGHT_CLASS_DEVICE=0 -DCONFIG_BACKLIGHT_CLASS_DEVICE_MODULE=0 -I/root/lx0_fork/sys/../common/include -DCONFIG_AGP -I/root/lx0_fork/sys/external/bsd/drm2/dist/drm/i915 -I/root/lx0_fork/sys/external/bsd/drm2/i915drm -DCONFIG_DRM_I915_FBDEV=1 -DCONFIG_DRM_I915_PRELIMINARY_HW_SUPPORT=0 -I/root/lx0_fork/sys/external/bsd/drm2/dist/drm/radeon -I/root/lx0_fork/sys/external/bsd/drm2/include/radeon -I/root/lx0_fork/sys/external/bsd/drm2/radeon -I/root/lx0_fork/sys/external/bsd/drm2/dist/drm/nouveau -I/root/lx0_fork/sys/external/bsd/drm2/dist/drm/nouveau/core -I/root/lx0_fork/sys/external/bsd/drm2/dist/drm/nouveau/core/include -I/root/lx0_fork/sys/external/bsd/drm2/nouveau -DCONFIG_NOUVEAU_DEBUG=5 -DCONFIG_NOUVEAU_DEBUG_DEFAULT=3 -I/root/lx0_fork/sys/external/bsd/acpica/dist/include -c /root/lx0_fork/sys/conf/param.c -o param.o
+--- /root/lx0_fork/sys/arch/amd64/compile/obj/UBSAN_ENABLED/lib/compat/libcompat.a ---
+nbmake[1]: stopped in /root/lx0_fork/sys/arch/amd64/compile/obj/UBSAN_ENABLED/lib/compat
+--- param.o ---
+x86_64--netbsd-gcc: error: unrecognized argument to -fsanitize= option: 'nonull-attribute'
+x86_64--netbsd-gcc: error: unrecognized argument to -fsanitize= option: 'nullability-arg'
+x86_64--netbsd-gcc: error: unrecognized argument to -fsanitize= option: 'nullability-assign'
+x86_64--netbsd-gcc: error: unrecognized argument to -fsanitize= option: 'nullability-return'
+x86_64--netbsd-gcc: error: unrecognized argument to -fsanitize= option: 'pointer-overflow'
+x86_64--netbsd-gcc: error: unrecognized argument to -fsanitize= option: 'returns-nonull-attribute'
+x86_64--netbsd-gcc: error: unrecognized argument to -fsanitize= option: 'unsigned-integer-overflow'
+--- /root/lx0_fork/sys/arch/amd64/compile/obj/UBSAN_ENABLED/lib/compat/libcompat.a ---
+*** [/root/lx0_fork/sys/arch/amd64/compile/obj/UBSAN_ENABLED/lib/compat/libcompat.a] Error code 2
+
+nbmake: stopped in /root/lx0_fork/sys/arch/amd64/compile/obj/UBSAN_ENABLED
+--- param.o ---
+*** [param.o] Error code 1
+
+nbmake: stopped in /root/lx0_fork/sys/arch/amd64/compile/obj/UBSAN_ENABLED
+
+nbmake: stopped in /root/lx0_fork/sys/arch/amd64/compile/obj/UBSAN_ENABLED
