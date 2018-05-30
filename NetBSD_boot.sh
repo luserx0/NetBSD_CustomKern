@@ -7,10 +7,11 @@ qemu="qemu-system-x86_64 \
         -m 1024 \
         -net nic \
         -net user,id=net0,hostfwd=tcp::10022-:22 \
-        -drive file=/home/pleb//NetBSD-GSoC/vhd/netbsd-current.img,if=none,format=raw,id=id0 \
-        -device ide-drive,drive=id0,serial=id0
-	-enable-kvm
-	"
+        -drive file=/home/pleb//NetBSD-GSoC/vhd/netbsd-HEAD.img,if=none,format=raw,id=id0 \
+        -device ide-drive,drive=id0,serial=id0 \
+	    -enable-kvm \
+    "
+    #-nographic
 
 #qemu-system-x86_64 -drive file=~/NetBSD-GSoC/vhd/netbsd-current.img,format=raw \
 #-netdev user,id=net0,hostfwd=tcp::2222-:22 -device e1000,netdev=net0 -enable-kvm -nographic -s
