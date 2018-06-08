@@ -1,0 +1,33 @@
+From 11083c2382d2f891d59866618bd0b91b9cf6c24b Mon Sep 17 00:00:00 2001
+From: Iam Bot <luserx0@gmail.com>
+Date: Thu, 31 May 2018 17:59:11 +0800
+Subject: [PATCH] Fix for overflow in constant due to the 31 bit capacity of
+ Intel Processors, caught by compiling the kernel with undefined behavior
+ flags
+
+---
+ sys/external/bsd/drm2/dist/drm/i915/i915_reg.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/sys/external/bsd/drm2/dist/drm/i915/i915_reg.h b/sys/external/bsd/drm2/dist/drm/i915/i915_reg.h
+index c77af69c2d8f..9ea2889fc399 100644
+--- a/sys/external/bsd/drm2/dist/drm/i915/i915_reg.h
++++ b/sys/external/bsd/drm2/dist/drm/i915/i915_reg.h
+@@ -5426,10 +5426,10 @@ enum punit_power_well {
+ #define  PORT_CLK_SEL_LCPLL_1350	(1<<29)
+ #define  PORT_CLK_SEL_LCPLL_810		(2<<29)
+ #define  PORT_CLK_SEL_SPLL		(3<<29)
+-#define  PORT_CLK_SEL_WRPLL1		(4<<29)
+-#define  PORT_CLK_SEL_WRPLL2		(5<<29)
+-#define  PORT_CLK_SEL_NONE		(7<<29)
+-#define  PORT_CLK_SEL_MASK		(7<<29)
++#define  PORT_CLK_SEL_WRPLL1		(4U<<29)
++#define  PORT_CLK_SEL_WRPLL2		(5U<<29)
++#define  PORT_CLK_SEL_NONE		(7U<<29)
++#define  PORT_CLK_SEL_MASK		(7U<<29)
+ 
+ /* Transcoder clock selection */
+ #define TRANS_CLK_SEL_A			0x46140
+-- 
+2.17.1
+
