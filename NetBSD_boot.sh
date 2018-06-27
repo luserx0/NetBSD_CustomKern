@@ -6,6 +6,7 @@ qemu="qemu-system-x86_64 \
         -curses \
         -m 1024 \
         -net nic \
+        -cdrom /home/pleb/OSes/NetBSD-8.99.14-amd64.iso \
         -net user,id=net0,hostfwd=tcp::10022-:22 \
         -drive file=/home/pleb//NetBSD-GSoC/vhd/netbsd-HEAD.img,if=none,format=raw,id=id0 \
         -device ide-drive,drive=id0,serial=id0 \

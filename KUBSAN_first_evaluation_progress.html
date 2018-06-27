@@ -1,0 +1,86 @@
+<html>
+	<title> GSoC 2018 Reports: Kernel Undefined Behavior Sanitizer, Part 1 </title>
+	<br/>
+	Prepared by Harry Pantazis(IRC:luserx0, Mail:luserx0 AT gmail DOT com)as part of GSoC 2018.
+	<br/>
+	<p> For GSoC '18, I'm working on the <a href="https://summerofcode.withgoogle.com/projects/#5908322608218112"> Kernel Undefined Behavior Sanitizer (KUBSAN) project</a>
+	for the integration of Undefined Behavior regression testing on the amd64 kernel. This article summarizes what has been done up to this point (Phase 1 Evaluation),
+	future goals and a brief introduction to Undefined Behavior.
+	So, first things first, let's get started.
+
+	</br> <a href="https://mail-index.netbsd.org/tech-kern/2018/04/05/msg023350.html">The mailing list project presentation</a>
+
+	<h2> What is Undefined Behavior? </h2>
+	<p> For Turing-complete languages we cannot reliably decide offline whether a program has the potential to execute an error;
+	we just have to run it and see.
+
+	<br/>Undefined Behavior in C is basically <i>what the ANSI standard leaves unexplained</i>. Code containing Undefined Behavior <b>is</b>
+	ANSI C compatible. It follows all the rules explained in the standard and causes real trouble. In programming terms,
+	it involves all the possible functionalities C code can run. It's whatever the compiler doesn't moan about, but when run
+	it causes run-time bugs, hard to locate.
+
+	<br/> The C FAQ defines "Undefined Behavior" like this:
+	<blockquote> Anything at all can happen; the Standard imposes no requirements. The program may fail to compile, or it may execute incorrectly (either crashing or silently generating incorrect results), or it may fortuitously do exactly what the programmer intended.
+	<br/><a href="https://developer.apple.com/documentation/code_diagnostics/undefined_behavior_sanitizer">A brief explanation of what is classifed as UB and some real case scenarios</a>
+	<br/><a href="https://blog.regehr.org/archives/213">A great blog post explaining more than mere mortals might need</a>
+
+	<br/><p> The important and scary thing to realize is that just about <b>any</b> optimization based on undefined behavior can start
+   being triggered on buggy code at any time in the future. Inlining, loop unrolling, memory promotion and other optimizations will
+  and a significant part of their reason for existing is to expose secondary optimizations like the ones above.</p>
+
+	<h2> Solution: Make a UB Sanitizer </h2>
+	<p> What we can do to find undefined behavior errors in our code, is creating a Sanitizer. Hopefully both CLang and GCC
+	have taken care of such tools, covering the majority of undefined behavior cases in a very nice manner.
+	They allow us to simply parse the -fsanitize=undefined option when we build our code and the compiler prints out simple warnings for us to see, use, comprehend.
+	<a href="https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html">The CLang supported flags</a> (same as GCC's but they don't have such extensive explanation docs).
+
+	<h2> Adding ATF Tests for Userland UBSan </h2>
+	<p> This was my first deliverable for the integration of KUBSan. The concept was to include tests causing
+	simple C programs to portray Undefined Behavior, such as overflows, erroneous shifting and out of bounds accessing of arrays (VLAs actually).
+	The ATF framework is not easy to learn, so it took me more than expected to complete this preliminary step to the project.
+	The good news was that I had enough time to understand Undefined Behavior to a suave depth and make my extensive research for ideas (and not only).
+
+	<br/> <a href="https://github.com/NetBSD/src/commit/705eaea77da05c69f594f2dd727c4f2524e6460b">The initial commit of the tests</a> cleaned up and submitted by my mentor Kamil Rytarowski.</p>
+
+	<h2> Addition of Example Kernel Module Panic_String </h2>
+	<p> Next on our roadmap was the understanding of NetBSD's loadable kernel modules. For this, I created a kernel module parsing a string from a device named /dev/panic
+	and calling the kernel panic(9) with it as argument, after syncing the system. This took a long time, but in the process I had the priviledge of reading
+	<a href="https://www.amazon.com/FreeBSD-Device-Drivers-Guide-Intrepid/dp/1593272049">FreeBSD Device Drivers: A Guide for the Intrepid</a>, which unfortunatelyfor our foundation
+	is the only book in close resemblance to our kernel module infrastructure.
+	<br /> <a href="https://github.com/NetBSD/src/commit/6c0b372831068a4a3d0418f7c269503404ff69a0">The panic_string module commit</a> revised, corrected and uploaded by Kamil.</p>
+
+	<h2> Compiling the kernel with -fsanitize=undefined </h2>
+	<p> Compiled the kernel with the aforementioned option to catch UB bugs. We got one, which was reported
+	to the tech-kern mailing list in this <a href="https://mail-index.netbsd.org/tech-kern/2018/05/30/msg023465.html">Thread</a>.</p>
+
+	<h2> Adding the option to compile the Kernel with KUBSan </h2>
+	<p> At last what was our last deliverable for GSoC's first evaluation, was getting the amd64 kernel to boot with the KUBSan option enabled.
+	This was a trick. We only needed the appropriate dummy functions, so we could use them as symbols in the linking process of a kernel build.
+	At first I created KUBSan as a loadable kernel module, but was unable to link the exported symbols. This means that I searched for 4 whole days
+	a way to link the exported symbols to the kernel build and was unsuccessful. But everything happens for a reason, because that one failure ignited me to search
+	for all the available UBSan implementations and I was able to locate the initial support of the KUBSan functionality for: <a href="https://github.com/torvalds/linux/commit/c6d308534aef6c99904bf5862066360ae067abc4#diff-a26a90e305c30adffbac5dcb5f9d4f42">Linux</a>,
+	<a href="https://www.chromium.org/developers/testing/undefinedbehaviorsanitizer">Chromium</a> and <a href="https://reviews.freebsd.org/D12099">FreeBSD</a>.
+	Which in turn, made me realise that the module was not necessary, since I could include the KUBSan functionality to our /sys infrastructure. Which I did and
+	which was successful and which allowed me to boot and run a fully KUBSan-ed kernel!
+
+	<br /> It hasn't been uploaded to upstream yet, but you can have a look at my local<a href"https://github.com/luserx0/src/commit/94f7d95384090d4d777d6b11e9246ff56dbee475">fork</a>.</p>
+
+	<h2> Summary and Future Goals </h2>
+	<p> This first month of GSoC has been a great experience. Last year I participated again with project trying to "revamp" support for Scheme R7RS in the Eclipse IDE (we later tried to create a Kawa-Scheme Language Server-LSP, but that's a sad story)
+	and my overall experience was really bad (I had to quit mid-July). This year we are doing things in a much friendlier, cooperative and result-producing manner.
+	I'm really happy about that.
+	<br /> A brief summary is that: <b>the Kernel booted with KUBSan and I'm in knowledge of all the tools needed to extent that functionality</b>. That's all you need to know up to this point.
+	<br /> <ol>Future goals include: <li> Making a full implementation of KUBSan, with an edge on surpassing other existing implementations,</li>
+		<li> Clear up any license issues,</li> <li>Finish the amd64 implementation and switch focus to the i386, </li> <li>Spead the NetBSD word</li></ol>
+
+	<br/> At last I would like to deliver a huge thanks to my mentors Kamil and Christos for their pieces of advice  and help with the project, but mostly for their
+	incredible behavior towards the problems I went through this past month.</p>
+
+	<ul> Further Reading:
+		<li> <a href="https://www.kernel.org/doc/html/v4.10/dev-tools/ubsan.html">Linux Kernel UBSan docs</a></li>
+		<li> <a href="https://cacm.acm.org/magazines/2016/3/198849-a-differential-approach-to-undefined-behavior-detection/fulltext">A nice in-depth article on UBSan for C/C++</a></li>
+		<li> <a href="luserx0.me">My Personal Blogsite</a></li>
+	</ul>
+</html>
+
+
