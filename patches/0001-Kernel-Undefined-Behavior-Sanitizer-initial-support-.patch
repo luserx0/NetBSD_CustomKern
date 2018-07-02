@@ -1,0 +1,144 @@
+From 94f7d95384090d4d777d6b11e9246ff56dbee475 Mon Sep 17 00:00:00 2001
+From: Iam Bot <luserx0@gmail.com>
+Date: Fri, 15 Jun 2018 00:41:24 +0800
+Subject: [PATCH] Kernel Undefined Behavior Sanitizer initial support tested
+ and functional.  *Please build kernel with MKCTF=no flag in order for it to
+ boot.
+
+Fix of the previous
+---
+ sys/arch/amd64/amd64/kubsan.c      | 7 +++----
+ sys/arch/amd64/conf/GENERIC_KUBSAN | 6 ++++++
+ sys/arch/amd64/conf/Makefile.amd64 | 9 +++++----
+ sys/arch/amd64/conf/files.amd64    | 9 +++++++--
+ sys/sys/ubsan.h                    | 2 ++
+ 5 files changed, 23 insertions(+), 10 deletions(-)
+ create mode 100644 sys/arch/amd64/conf/GENERIC_KUBSAN
+
+diff --git a/sys/arch/amd64/amd64/kubsan.c b/sys/arch/amd64/amd64/kubsan.c
+index adc95f530c87..44ed34603053 100644
+--- a/sys/arch/amd64/amd64/kubsan.c
++++ b/sys/arch/amd64/amd64/kubsan.c
+@@ -77,9 +77,8 @@ void __ubsan_handle_load_invalid_value(struct invalid_value_data *data,
+ {}
+ 
+ void __ubsan_handle_nonnull_return(void *data);
+-void __ubsan_handle_nonnull_return(void *data)
+-{}
++void __ubsan_handle_nonnull_return(void *data) {}
+ 
++/* Compiler moaning */
+ void __ubsan_handle_nonnull_arg(void *data);
+-void __ubsan_handle_nonnull_arg(void *data)
+-{}
++void __ubsan_handle_nonnull_arg(void *data) {}
+diff --git a/sys/arch/amd64/conf/GENERIC_KUBSAN b/sys/arch/amd64/conf/GENERIC_KUBSAN
+new file mode 100644
+index 000000000000..b1e58d3181bf
+--- /dev/null
++++ b/sys/arch/amd64/conf/GENERIC_KUBSAN
+@@ -0,0 +1,6 @@
++# $NetBSD$
++
++include "arch/amd64/conf/GENERIC"
++
++makeoptions 	KUBSAN=1		# Kernel Undefined Behavior Sanitizer
++options KUBSAN
+diff --git a/sys/arch/amd64/conf/Makefile.amd64 b/sys/arch/amd64/conf/Makefile.amd64
+index 0ec62b3bd684..cef55dd4b58a 100644
+--- a/sys/arch/amd64/conf/Makefile.amd64
++++ b/sys/arch/amd64/conf/Makefile.amd64
+@@ -1,4 +1,4 @@
+-#	$NetBSD: Makefile.amd64,v 1.70 2018/04/18 10:38:47 martin Exp $
++#	$NetBSD: Makefile.amd64,v 1.71 2018/06/02 15:09:37 christos Exp $
+ 
+ # Makefile for NetBSD
+ #
+@@ -20,7 +20,7 @@
+ MACHINE_ARCH=x86_64
+ USETOOLS?=	no
+ NEED_OWN_INSTALL_TARGET?=no
+-.include <bsd.own.mk>
++.include <bsd.init.mk>
+ 
+ USE_SSP?=	yes
+ 
+@@ -48,9 +48,9 @@ CFLAGS+=      -mindirect-branch=thunk-inline
+ CFLAGS+=      -mindirect-branch-register
+ .endif
+ 
+-# Kernel Undefined Behavior Sanitizer 
++# Kernel Undefined Behavior Sanitizer options
+ .if ${KUBSAN:U0} > 0 && ${HAVE_GCC:U0} > 0
+-CFLAGS+=	-fsanitize=undefined
++CFLAGS+=		-fsanitize=undefined
+ .endif
+ 
+ ##
+@@ -122,3 +122,4 @@ netbsd32_sigcode.o: assym.h
+ ## (10) Appending make options.
+ ##
+ %MAKEOPTIONSAPPEND
++
+diff --git a/sys/arch/amd64/conf/files.amd64 b/sys/arch/amd64/conf/files.amd64
+index d1c82f939519..1bad2ab35484 100644
+--- a/sys/arch/amd64/conf/files.amd64
++++ b/sys/arch/amd64/conf/files.amd64
+@@ -21,7 +21,9 @@ defparam opt_physmem.h	PHYSMEM_MAX_ADDR PHYSMEM_MAX_SIZE
+ 
+ # Enable GCC spectre V2 mitigation options
+ defflag opt_spectre.h	SPECTRE_V2_GCC_MITIGATION
+-defflag opt_kubsan.h	KUBSAN
++
++# Enable Kernel Undefined Behavior Sanitizer options
++defflag opt_kubsan.h KUBSAN
+ 
+ #
+ # XXX these are just here at the moment so that we can share files
+@@ -38,6 +40,7 @@ file	arch/amd64/amd64/locore.S		machdep
+ file	arch/amd64/amd64/vector.S		machdep
+ file	arch/amd64/amd64/copy.S			machdep
+ file	arch/amd64/amd64/spl.S			machdep
++
+ file	arch/amd64/amd64/amd64func.S		machdep
+ file	arch/amd64/amd64/amd64_trap.S		machdep
+ file	arch/amd64/amd64/autoconf.c		machdep
+@@ -48,6 +51,7 @@ file	arch/amd64/amd64/db_disasm.c		ddb
+ file	arch/amd64/amd64/db_interface.c		ddb
+ file	arch/amd64/amd64/db_machdep.c		ddb
+ file	arch/amd64/amd64/kobj_machdep.c		modular
++file	arch/amd64/amd64/kubsan.c		kubsan
+ file	kern/subr_disk_mbr.c			disk
+ file	arch/amd64/amd64/gdt.c			machdep
+ file	arch/amd64/amd64/machdep.c		machdep
+@@ -59,7 +63,7 @@ file	arch/x86/x86/dbregs.c			machdep
+ file	arch/x86/x86/spectre.c			machdep
+ file	arch/amd64/amd64/lock_stubs.S		machdep
+ file	dev/cons.c				machdep
+-file	arch/amd64/amd64/kubsan.c		machdep
++
+ file	arch/amd64/amd64/mptramp.S        multiprocessor
+ 
+ #
+@@ -190,3 +194,4 @@ file	arch/amd64/acpi/acpi_wakeup_low.S	acpi
+ 
+ include	"arch/amd64/conf/majors.amd64"
+ endif #xen
++
+diff --git a/sys/sys/ubsan.h b/sys/sys/ubsan.h
+index 1f6745515779..17f4e7dfaa01 100644
+--- a/sys/sys/ubsan.h
++++ b/sys/sys/ubsan.h
+@@ -1,3 +1,4 @@
++
+ #ifndef _LIB_UBSAN_H
+ #define _LIB_UBSAN_H
+ 
+@@ -88,3 +89,4 @@ typedef intmax_t s_max;
+ typedef uintmax_t u_max;
+ 
+ #endif
++
+-- 
+2.17.1
+
